@@ -16,5 +16,5 @@ sudo rm -r -f laravel
 #sudo git clone https://github.com/MaximMonin/laravel.git
 
 # Load project Laravel .env file and some other files to stage image
-sudo rm -r -f laravel-add
+# sudo rm -r -f laravel-add
 # sudo git clone https://user:password@git.private.site/user/laravel-add.git
