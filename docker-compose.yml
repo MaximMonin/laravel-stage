@@ -49,7 +49,7 @@ services:
         echo 'Starting php-fpm'
         exec php-fpm
     extra_hosts:
-      - "git.milkiland.org:10.21.10.13"
+      - "git.private.site:10.21.10.13"
     networks:
       default:
         aliases:
