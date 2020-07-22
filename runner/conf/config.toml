@@ -1,5 +1,5 @@
 concurrent = 1
-check_interval = 0
+check_interval = 30
 
 [session_server]
   listen_address = "[::]:8093"
