@@ -21,10 +21,10 @@ Register your own gitlab-runner. Run gitlab-runner register inside laravel-stage
 Check in 'Run untagged jobs' in runner properties
 3. Change .gitlab-ci.yml file to setup CI/CD jobs.
 By default this file runs scripts in runner/scripts directory.
-By default beforebuild.sh script loads projects files from development git repo and saves files in /git directory
+By default beforebuild.sh script loads projects files from development git repo and saves files in /git directory.
+Change it to your laravel developent project.
 build.sh copy projects files to /app directory + copy .env file to setup laravel enviroment
 After copy build.sh migrate mysql database and then compile java scripts with webpack
 
 By default port 2390 used for local site testing and 2391 for mysql administration. (root/root)
 ~~~
-
