@@ -1,0 +1,8 @@
+# Domain for which to generate the certificate
+VIRTUAL_HOST=stage.your.site
+VIRTUAL_PORT=80
+LETSENCRYPT_HOST=stage.your.site
+LETSENCRYPT_EMAIL=admin@your.site
+
+ECHO_ALLOW_CORS=true
+ECHO_ALLOW_ORIGIN=http://stage.your.site

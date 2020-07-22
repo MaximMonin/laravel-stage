@@ -1,0 +1,226 @@
+version: '3.7'
+
+services:
+  loadbalance:
+    image: nginx:1.13.1
+    restart: always
+    container_name: laravel-loadbalance-stage
+    depends_on:
+      - laravel
+      - socketio
+    expose:
+      - 80
+      - 443
+    ports:
+      - 2390:80
+    volumes:
+      - ./app:/app
+      - ./nginx:/etc/nginx/conf.d
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - VIRTUAL_HOST
+      - VIRTUAL_PORT
+      - LETSENCRYPT_HOST
+      - LETSENCRYPT_EMAIL
+    networks:
+      proxy:
+      default:
+        aliases:
+          - laravelnginx
+
+  laravel:
+    image: maximmonin/laravel
+    container_name: laravel-stage
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+      - socketio
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        echo 'Setting up container'
+        /scripts/beforebuild.sh
+        /scripts/build.sh
+        echo 'Starting gitlab-runner'
+        gitlab-runner start
+        echo 'Starting php-fpm'
+        exec php-fpm
+    extra_hosts:
+      - "git.milkiland.org:10.21.10.13"
+    networks:
+      default:
+        aliases:
+          - laravel
+    volumes:
+     - ./app/storage:/app/storage
+     - ./app/public:/app/public
+     - ./mail:/etc/ssmtp
+     - ./worker/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+     - ./runner/conf:/etc/gitlab-runner
+     - ./runner/data:/home/gitlab-runner
+     - ./runner/scripts:/scripts
+     - ./git:/git
+     - /etc/localtime:/etc/localtime:ro
+    expose:
+      - 9000
+
+  laravel_worker:
+    image: maximmonin/laravel
+    container_name: laravel-worker-stage
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+      - socketio
+      - laravel
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        echo 'Setting up container'
+        /scripts/build.sh
+        echo 'Starting queue workers and scheduler'
+        /start.sh
+        echo 'Starting php-fpm'
+        exec php-fpm
+    networks:
+      default:
+        aliases:
+          - laravel_worker
+    volumes:
+     - ./app/storage:/app/storage
+     - ./app/public:/app/public
+     - ./mail:/etc/ssmtp
+     - ./worker/laravel-worker.conf:/etc/supervisor/conf.d/laravel-worker.conf:ro
+     - ./worker/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+     - ./runner/scripts:/scripts
+     - ./git:/git
+     - /etc/localtime:/etc/localtime:ro
+    expose:
+      - 9000
+
+  mysql:
+    image: mariadb:10.4.11
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password --init-file /init/init.sql
+    container_name: laravel-mysql-stage
+    networks:
+      default:
+        aliases:
+          - mysql
+    volumes:
+      - ./db:/var/lib/mysql
+      - ./init.sql:/init/init.sql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  redis:
+    image: redis:5.0.7
+    container_name: laravel-redis-stage
+    restart: always
+    networks:
+      default:
+        aliases:
+          - redis
+    volumes:
+      - ./redis:/data
+      - /etc/localtime:/etc/localtime:ro
+
+  socketio:
+    image: mintopia/laravel-echo-server
+    restart: always
+    container_name: laravel-socketio-stage
+    depends_on:
+      - redis
+    networks:
+      default:
+        aliases:
+          - socketio
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    expose:
+      - 6001
+    environment:
+      - LARAVEL_ECHO_SERVER_AUTH_HOST=http://laravelnginx
+      - LARAVEL_ECHO_SERVER_DEBUG=true
+      - ECHO_DEVMODE=true
+      - ECHO_PROTOCOL=http
+      - ECHO_REDIS_PORT=6379
+      - ECHO_REDIS_HOSTNAME=redis
+      - ECHO_ALLOW_CORS
+      - ECHO_ALLOW_ORIGIN
+
+  selenium:
+    image: selenium/hub
+    restart: always
+    container_name: laravel-selenium-stage
+    depends_on:
+      - loadbalance
+    volumes:
+      - /dev/shm:/dev/shm
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      default:
+        aliases:
+          - selenium
+
+  selenium-chrome:
+    image: selenium/node-chrome
+    restart: always
+    container_name: laravel-selenium-chrome-stage
+    depends_on:
+      - selenium
+    environment:
+      - HUB_HOST=selenium
+      - HUB_PORT=4444
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      default:
+
+  selenium-firefox:
+    image: selenium/node-firefox
+    restart: always
+    container_name: laravel-selenium-firefox-stage
+    depends_on:
+      - selenium
+    environment:
+      - HUB_HOST=selenium
+      - HUB_PORT=4444
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      default:
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel-phpadmin-stage
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 2391:80
+    networks:
+      default:
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: root
+      PMA_HOST: mysql
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+  proxy:
+    external:
+      name: nginx-proxy

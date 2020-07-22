@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS laravel CHARACTER SET UTF8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'laravel'@'localhost' IDENTIFIED BY 'laravel';
+GRANT ALL PRIVILEGES ON *.* TO 'laravel'@'localhost';
+CREATE USER IF NOT EXISTS laravel IDENTIFIED BY 'laravel';
+GRANT ALL PRIVILEGES ON *.* TO 'laravel'@'%';
