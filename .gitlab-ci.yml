@@ -18,10 +18,21 @@ job 2:
 job 3:
   stage: test
   script: cd /app && php artisan dusk
-    
+  
 job 4:
   stage: deploy
-  script: echo 'make deploy'
+  script: 
+    - export BUILD_NAME=$(cat /scripts/build-name)
+    - export BUILD_VERSION=$(cat /scripts/build-version)
+    - export BUILD_NUMBER=$CI_PIPELINE_ID
+    - export BUILD_DATE="$(date +%Y%m%d)"
+    - export BUILD_CATALOG=/git/$BUILD_NAME-$BUILD_VERSION
+    - export BUILD_TAR=/git/$BUILD_NAME-$BUILD_VERSION-$BUILD_NUMBER-$BUILD_DATE.tar
+    - echo 'Begining production build:' $BUILD_NAME $BUILD_VERSION $BUILD_DATE $BUILD_NUMBER 
+    - sudo rm -r -f $BUILD_CATALOG
+    - sudo mkdir $BUILD_CATALOG
+    - sudo rsync -qrv --exclude-from=/scripts/build-exclude /app/* $BUILD_CATALOG
+    - cd $BUILD_CATALOG && sudo tar -cf $BUILD_TAR * && sudo gzip $BUILD_TAR
   
 job 5:
   stage: .post
