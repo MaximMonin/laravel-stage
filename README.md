@@ -37,5 +37,8 @@ from source development projects.
 It allows for every push to development git repos start whole CI/CD process and rebuild stage image and run tests
 https://gitlab.com/api/v4/projects/projectid/ref/master/trigger/pipeline?token=copiedtoken
 
+6. Change /runner/scripts/ build-name build-version to your project name and version.
+Edit files to exclude from laravel stage /app catalog in /runner/scripts/build-exclude file
+
 By default port 2390 used for local site testing and 2391 for mysql administration. (root/root)
 ~~~
