@@ -31,7 +31,10 @@ job 4:
     - echo 'Begining production build:' $BUILD_NAME $BUILD_VERSION $BUILD_DATE $BUILD_NUMBER 
     - sudo rm -r -f $BUILD_CATALOG
     - sudo mkdir $BUILD_CATALOG
+    - echo 'Copying build from /app'
     - sudo rsync -qrv --exclude-from=/scripts/build-exclude /app/* $BUILD_CATALOG
+    - echo 'Installing vendor libraries with --no-dev'
+    - cd $BUILD_CATALOG && sudo composer install --no-dev --no-scripts --no-suggest
     - cd $BUILD_CATALOG && sudo tar -cf $BUILD_TAR * && sudo gzip $BUILD_TAR
     - sudo cp $BUILD_TAR.gz /git/$BUILD_NAME-$BUILD_VERSION-latest.tar.gz
     - sudo cp $BUILD_TAR.gz /git/$BUILD_NAME-latest.tar.gz
