@@ -6,15 +6,14 @@ Project was build with a goal to auto create stage enviroment, test and rebuild 
 Also create production builds if testing is successful.
 
 ## Installation
-~~~
-1. Clone this project
-2. Copy env-docker file to .env and change default values to your site
-3. Register new project on gitlab.
-4. Start containers.
+1. Clone this project   
+2. Copy env-docker file to .env and change default values to your site   
+3. Register new project on gitlab.   
+4. Start containers.   
 
 Docker compose works with combination of nginx-proxy https://github.com/MaximMonin/nginx-ssh-proxy-docker, or as local installation
 To create nginx-proxy network run sudo docker network create nginx-proxy
-~~~
+
 
 ## Setup
 
