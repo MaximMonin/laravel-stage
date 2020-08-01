@@ -13,11 +13,11 @@ job 1:
         
 job 2:
   stage: test
-  script: cd /app && php artisan test
+  script: cd /app && sudo php artisan test
 
 job 3:
   stage: test
-  script: cd /app && php artisan dusk
+  script: cd /app && sudo php artisan dusk
   
 job 4:
   stage: deploy

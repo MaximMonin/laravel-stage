@@ -164,6 +164,8 @@ services:
     volumes:
       - /dev/shm:/dev/shm
       - /etc/localtime:/etc/localtime:ro
+    environment:
+      - GRID_MAX_SESSION=5
     networks:
       default:
         aliases:
@@ -178,6 +180,8 @@ services:
     environment:
       - HUB_HOST=selenium
       - HUB_PORT=4444
+      - NODE_MAX_SESSION=5
+      - NODE_MAX_INSTANCES=5
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
@@ -192,6 +196,8 @@ services:
     environment:
       - HUB_HOST=selenium
       - HUB_PORT=4444
+      - NODE_MAX_SESSION=5
+      - NODE_MAX_INSTANCES=5
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
