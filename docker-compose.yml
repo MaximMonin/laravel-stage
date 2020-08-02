@@ -166,6 +166,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - GRID_MAX_SESSION=5
+      - GRID_BROWSER_TIMEOUT=30000 
     networks:
       default:
         aliases:
